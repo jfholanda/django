@@ -1,5 +1,7 @@
 /venv
 __pycache__/
+*.sqlite3
+*.db
 *.log
 local_settings.py
 db.sqlite3
