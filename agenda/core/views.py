@@ -35,7 +35,7 @@ def logout_user(request):
 @login_required(login_url='/login/')
 def lista_eventos(request):
     usuario = request.user
-    data_atual = datetime.now() - timedelta(hours=2) #permitindo ver até 1 hora atrasado
+    data_atual = datetime.now() - timedelta(hours=2) #permitindo ver até 2 horas atrasado
     if usuario.username == 'admin':
         eventos = Evento.objects.all()
         response = {'eventos': eventos, 'usuario': usuario}
@@ -52,7 +52,10 @@ def evento(request):
     id_evento = request.GET.get('id')
     dados = {}
     if id_evento:
-        dados['evento'] = Evento.objects.get(id=id_evento)
+        try:
+            dados['evento'] = Evento.objects.get(id=id_evento)
+        except Exception:
+            raise Http404()
     return render(request, 'evento.html', dados)
 
 @login_required(login_url='/login/')
@@ -95,12 +98,20 @@ def delete_evento(request, id_evento):
 @login_required(login_url='/login/')
 def json_lista_evento(request):
     usuario = request.user
-    data_atual = datetime.now() - timedelta(hours=2) #permitindo ver até 1 hora atrasado
     if usuario.username == 'admin':
         eventos = Evento.objects.all().values('id', 'titulo', 'usuario')
     else:
         eventos = Evento.objects.filter(usuario=usuario).values('id', 'titulo')
 
     return JsonResponse(list(eventos), safe=False)
+
+@login_required(login_url='/login/')
+def historico_eventos(request):
+    usuario = request.user
+    data_atual = datetime.now() - timedelta(hours=2)
+    eventos = Evento.objects.filter(usuario=usuario, data_evento__lt=data_atual)
+    response = {'eventos': eventos, 'usuario': usuario}
+    
+    return render(request, 'historico.html', response)
 
 
