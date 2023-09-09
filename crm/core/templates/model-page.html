@@ -14,8 +14,10 @@
     <header>
         {% include "model-header.html" %}
     </header>
-    <main>
-    {% block content %} {% endblock %}
+    <main class="content" style="margin-top: 5%">
+        <div class="container">
+        {% block content %} {% endblock %}
+        </div>
     </main>
     
     <footer class="py-r bg-dark text-white-50">
@@ -39,7 +41,6 @@
         line-height: 50px;
         text-align: center;
         width: 100%;
-
     }
 
 </style>
