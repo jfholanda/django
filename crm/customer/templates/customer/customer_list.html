@@ -7,7 +7,14 @@
         style="float: right; margin-bottom: 5px">Adicionar</button>
     </a>
 
-    <table class="table table-bordered">
+    <form>
+        <div class="form-group mb-1">
+            <input class="form-control" type="text" name="name" placeholder="Buscar por nome...">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </div>
+    </form>
+
+    <table class="table table-bordered mt-5">
         <thead>
             <tr>
                 <th>Nome</th>
@@ -20,13 +27,61 @@
         <tbody>
             {% for customer in customer_list %}
                 <tr>
-                    <td>{{ customer.get_full_name }}</td>
+                    <td><a href="{{ customer.get_absolute_url }}">{{ customer.get_full_name }}</a></td>
                     <td>{{ customer.get_full_city }}</td>
                     <td>{{ customer.get_full_phone_number }}</td>
                     <td>{{ customer.email }}</td>
-                    <td><button type="button" class="btn btn-danger">Excluir</button></td>
+                    <td>
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmDeleteModal{{ customer.id }}">
+                            Excluir
+                        </button>
+                    </td>
                 </tr>
-                {% endfor %}
+        
+                <!-- Modal de confirmação de exclusão para cada cliente -->
+                <div class="modal fade" id="confirmDeleteModal{{ customer.id }}" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmação de Exclusão</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Tem certeza de que deseja excluir o cliente "{{ customer.get_full_name }}"?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                <form method="post" action="{{ customer.get_delete_url }}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">Excluir</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
         </tbody>
     </table>
+
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" 
+                href="?page={{ page_obj.previous_page_number}}">Anterior</a></li>
+        {% else %}
+            <li class="page-item disabled"><a class="page-link" href="#">Anterior</a></li>
+        {% endif %}
+
+        {% for object in page_obj.paginator.page_range %}
+            <li class="page-item"><a class="page-link" href="?page={{ forloop.counter }}">{{ forloop.counter }}</a></li>
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" 
+                href="?page={{ page_obj.next_page_number}}">Próximo</a></li>
+        {% else %}
+            <li class="page-item disabled"><a class="page-link" href="#">Próximo</a></li>
+        {% endif %}
+    </ul>
 {% endblock %}
